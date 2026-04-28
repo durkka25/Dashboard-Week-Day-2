@@ -1,0 +1,41 @@
+select *
+from themes
+where lower(name) like '%botanical%' //found id for botanical is 769
+;
+
+create or replace table sets_and_themes as (
+select 
+    i.id as id
+    ,name as sets_name
+    ,year as sets_year
+    ,num_parts as sets_num_parts
+    ,img_url as set_img_url
+from sets as s
+join inventories as i on s.set_num = i.set_num
+where theme_id = 769 //use previous id to filter to only botanical sets
+)
+;
+
+create or replace table parts_and_colors as (
+select 
+    c.id as color_id
+    ,c.name as color_name
+    ,c.rgb as color_hex_code
+    ,c.num_parts as color_num_parts
+    ,c.num_sets as color_num_sets
+    ,c.y1 AS color_y1
+    ,c.y2 as color_y2
+    ,ip.inventory_id as id
+    ,ip.quantity as parts_quantity
+    ,ip.is_spare as parts_is_spare
+    ,p.name as parts_name
+    ,p.part_material as parts_material
+    ,p.part_cat_id as parts_id
+    ,p.part_num as parts_num
+    ,pc.c2 as part_cat_name
+from inventory_parts ip
+LEFT JOIN colors c ON ip.color_id = c.id
+LEFT JOIN parts p ON ip.part_num = p.part_num
+LEFT JOIN part_categories pc ON p.part_cat_id = TRY_CAST(pc.c1 AS INT)
+)
+;
